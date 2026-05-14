@@ -202,6 +202,9 @@
     border-radius: 8px;
     transition: all .15s;
     font-size: 14px; line-height: 1.5;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none; -webkit-user-select: none;
   }
   .option-item:hover { background: #f0f7f8; border-color: var(--teal-lt); }
   .option-item input { margin-top: 2px; accent-color: var(--teal); flex-shrink: 0; }
@@ -232,6 +235,8 @@
     color: var(--muted);
     transition: all .15s;
     text-align: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   .scale-btn:hover { border-color: var(--teal-lt); color: var(--teal); background: #f0f7f8; }
   .scale-btn.selected {
@@ -285,6 +290,7 @@
     padding: 12px 28px; border-radius: 8px; border: none;
     font-family: var(--font-body); font-size: 15px; font-weight: 500;
     cursor: pointer; transition: all .2s; outline: none;
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   }
   .btn-prev {
     background: var(--white); color: var(--muted);
@@ -914,6 +920,8 @@ document.querySelectorAll('.option-item input').forEach(inp => {
   inp.addEventListener('change', function() {
     const name = this.name;
     if (name) {
+      // store in answers for reliable mobile validation
+      answers[name] = this.value;
       document.querySelectorAll(`input[name="${name}"]`).forEach(i => {
         i.closest('.option-item').classList.toggle('selected', i.checked);
       });
@@ -921,6 +929,14 @@ document.querySelectorAll('.option-item input').forEach(inp => {
     // mark parent card
     const card = this.closest('.q-card');
     if (card) { card.classList.add('answered'); card.classList.remove('error'); }
+  });
+
+  // iOS Safari: fire change on touchend to avoid 300ms delay
+  inp.addEventListener('touchend', function(e) {
+    if (!this.checked) {
+      this.checked = true;
+      this.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   });
 });
 
@@ -939,8 +955,8 @@ function validateSection(idx) {
 
   if (idx === 0) {
     if (!document.getElementById('q-name').value.trim()) setErr('qc-name'); else clearErr('qc-name');
-    if (!document.querySelector('input[name="timing"]:checked'))   setErr('qc-timing');   else clearErr('qc-timing');
-    if (!document.querySelector('input[name="filler"]:checked'))   setErr('qc-filler');   else clearErr('qc-filler');
+    if (!answers['timing'])  setErr('qc-timing');  else clearErr('qc-timing');
+    if (!answers['filler'])  setErr('qc-filler');  else clearErr('qc-filler');
   }
 
   if (idx === 1) {
@@ -970,8 +986,8 @@ function validateSection(idx) {
   }
 
   if (idx === 4) {
-    if (!answers['overall']) setErr('qc-overall'); else clearErr('qc-overall');
-    if (!document.querySelector('input[name="recommend"]:checked')) setErr('qc-recommend'); else clearErr('qc-recommend');
+    if (!answers['overall'])   setErr('qc-overall');   else clearErr('qc-overall');
+    if (!answers['recommend']) setErr('qc-recommend'); else clearErr('qc-recommend');
   }
 
   return ok;
@@ -1016,8 +1032,8 @@ function collectData() {
   const data = {
     timestamp:   new Date().toLocaleString('zh-TW'),
     姓名:         document.getElementById('q-name').value.trim(),
-    填寫時間:       document.querySelector('input[name="timing"]:checked')?.value || '',
-    填寫者:        document.querySelector('input[name="filler"]:checked')?.value || '',
+    填寫時間:       answers['timing']  || '',
+    填寫者:        answers['filler']  || '',
     // CARE 1–10
     Q1_安心放鬆:    answers['care1']  || '',
     Q2_表達疑問:    answers['care2']  || '',
@@ -1038,7 +1054,7 @@ function collectData() {
     Q16_家屬溝通:   answers['care16'] || '',
     // 整體
     整體滿意度:      answers['overall'] || '',
-    推薦意願:        document.querySelector('input[name="recommend"]:checked')?.value || '',
+    推薦意願:        answers['recommend'] || '',
     // 開放式
     最滿意經驗:      document.getElementById('q-open1').value.trim(),
     需改善之處:      document.getElementById('q-open2').value.trim(),
