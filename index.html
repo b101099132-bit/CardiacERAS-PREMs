@@ -418,7 +418,7 @@
           <input type="radio" name="timing" value="出院後1-3個月"> 出院後 1–3 個月
         </label>
         <label class="option-item">
-          <input type="radio" name="timing" value="出院3個月後"> 出院3個月後
+          <input type="radio" name="timing" value="出院3個月後"> 出院 3 個月後
         </label>
       </div>
       <div class="error-msg">請選擇填寫時間</div>
@@ -939,7 +939,6 @@ function validateSection(idx) {
 
   if (idx === 0) {
     if (!document.getElementById('q-name').value.trim()) setErr('qc-name'); else clearErr('qc-name');
-    if (!document.getElementById('q-pid').value.trim())  setErr('qc-pid');  else clearErr('qc-pid');
     if (!document.querySelector('input[name="timing"]:checked'))   setErr('qc-timing');   else clearErr('qc-timing');
     if (!document.querySelector('input[name="filler"]:checked'))   setErr('qc-filler');   else clearErr('qc-filler');
   }
@@ -1069,7 +1068,7 @@ async function submitForm() {
   //  2. 貼入下方 Apps Script 程式碼並部署為 Web App
   //  3. 將產生的網址填入 GOOGLE_SHEET_URL
   // ══════════════════════════════════════════════
-  const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwMvLHfyp7x-OjiccJhE705xrReAFbgXrhnDaGKVpsyL5nI8_nchBx7glNdeKg7e44TRQ/exec';
+  const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
 
   try {
     await fetch(GOOGLE_SHEET_URL, {
